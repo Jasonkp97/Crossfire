@@ -52,36 +52,37 @@ if __name__ == "__main__":
     expat_ratio=np.array([0]*network.shape[0])
 
 ### Number of anti-socials and number of them in the test set
-'''
-    feizhai=np.array([0]*221)
-    count=0
-    for i in range(network.shape[0]-1):
-        if(network[i+1][0]-network[i][0]>1):
-            for j in range(network[i][0]+1,network[i+1][0]):
-                feizhai[count]=j
-                count+=1
-    count1=0
-    for i in feizhai:
-        if i in test_crude:
-            print(i)
-            count1+=1
-    print(count)
-    print(count1)
-'''
+
+    # feizhai=np.array([0]*221)
+    # count=0
+    # for i in range(network.shape[0]-1):
+    #     if(network[i+1][0]-network[i][0]>1):
+    #         for j in range(network[i][0]+1,network[i+1][0]):
+    #             feizhai[count]=j
+    #             count+=1
+    # count1=0
+    # for i in feizhai:
+    #     if i in test_crude:
+    #         print(i)
+    #         count1+=1
+    # print(count)
+    # print(count1)
+
 ### Scatterplot of users' longitude and latitude
-'''
-    fig = plt.figure()
-    ax=fig.add_subplot(1,1,1)
-    ax.set_title("Lon_Lat_Graph")
-    ax.set_xlabel("Longitude")
-    ax.set_ylabel("Latitude")
+
+    # fig = plt.figure()
+    # ax=fig.add_subplot(1,1,1)
+    # ax.set_title("Lon_Lat_Graph")
+    # ax.set_xlabel("Longitude")
+    # ax.set_ylabel("Latitude")
+    #
+    # ax=plt.scatter(train_lon,train_lat)
+    #
+    # plt.show()
     
-    ax=plt.scatter(train_lon,train_lat)
-    
-    plt.show()
-    
-''' 
-    
+
+
+    print(233)
 
     
     
