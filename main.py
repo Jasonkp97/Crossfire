@@ -28,7 +28,21 @@ def closeness(id1, id2):
 
 def is_Expat(id):
     count=0
+    errorcount=0
+
     for friend in network_dict[id]:
+        try:
+            if (spatial.distance.euclidean([train_dict[id][3],train_dict[id][4]],
+                                           [train_dict[friend][3],train_dict[friend][4]]) >= 10
+            and
+                train_dict[id][3]*train_dict[id][4] != 0
+            and
+                train_dict[friend][3]*train_dict[friend][4] != 0
+                ):
+                count+=1
+        except:
+            errorcount+=1
+
         if (spatial.distance.euclidean([train_lat[id],train_lon[id]],[train_lat[friend],train_lon[friend]])>=2):
             count+=1
     if count>=(len(network_dict[id]) / 2):
@@ -43,7 +57,7 @@ if __name__ == "__main__":
 ### Load in data and preprocess
     network_crude = np.loadtxt('graph.txt').astype(int)
     network_dict = defaultdict(list)
-    real_train_dict=defaultdict(list)
+    train_dict=defaultdict(list)
 
     training_crude=np.asarray(open('posts_train.txt',"r").readlines())[1:]
     test_crude=np.asarray(open('posts_test.txt','r').readlines())[1:]
@@ -75,7 +89,7 @@ if __name__ == "__main__":
 
 
     for i in range(49812):
-        real_train_dict[train_id[i]]=training_data_all_else[i]
+        train_dict[train_id[i]]=training_data_all_else[i]
     [network_dict[a].append(b) for a, b in network_crude]
 
     print(closeness(2172,233))
@@ -85,12 +99,17 @@ if __name__ == "__main__":
     #          print("closeness of "+str(5931)+" and "+str(i)+" is: "+ str(closeness(5931,i)))
 
     # print(len(train_posts))
-    # print(len(train_lat))
+    # print(len(train_lat)
     # expat_count=0
-    # for i in range(len(network)):
-    #     expat_count+=is_expat(i)
-    #
-    # print(expat_count)
+    # for i in range(len(network_dict)):
+    #     expat_count+=is_Expat(i)
+    # print("expat count: "+str(expat_count))
+
+    # friend_counts=np.array([0]*len(network_dict))
+    # for i in range(len(network_dict)):
+    #     friend_counts=friend_counts.append(len(network_dict[i]))
+    #     print(len(network_dict[i]))
+    # print(friend_counts.sort())
 
 
 ### Number of anti-socials and number of them in the test set
