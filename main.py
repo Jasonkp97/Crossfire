@@ -60,15 +60,21 @@ if __name__ == "__main__":
     network[2].append(3)
     network[1].append(3)
     
-    print(network)
+
 
     [network[a].append(b) for a,b in network_crude]
-    
 
-    print(network)
-    
 
-    
+
+
+    def closeness(id1,id2):
+        score=0
+        intersection=set(network[id1])&set(network[id2])
+        for i in intersection:
+            score+=1/len(network[i])
+        return score
+    print(closeness(5283,343))
+
     
 
 
@@ -100,7 +106,7 @@ if __name__ == "__main__":
     # ax=plt.scatter(train_lon,train_lat)
     #
     # plt.show()
-    
+
 
 
 ### 44666666666666668888
