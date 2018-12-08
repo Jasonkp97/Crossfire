@@ -18,6 +18,12 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 
+def closeness(id1, id2):
+    score = 0
+    intersection = set(network[id1]) & set(network[id2])
+    for i in intersection:
+        score += 1 / len(network[i])
+    return score
     
 
 
@@ -67,15 +73,13 @@ if __name__ == "__main__":
 
 
 
-    def closeness(id1,id2):
-        score=0
-        intersection=set(network[id1])&set(network[id2])
-        for i in intersection:
-            score+=1/len(network[i])
-        return score
+
+
     print(closeness(5283,343))
 
-    
+    for i in range(len(network)):
+        if (closeness(233, i) != 0):
+            print("closeness of "+str(233)+" and "+str(i)+" is: "+ str(closeness(233,i)))
 
 
 ### Number of anti-socials and number of them in the test set
