@@ -10,6 +10,7 @@ from sklearn.metrics import zero_one_loss
 from sklearn.metrics import f1_score
 from sklearn.neighbors import DistanceMetric
 from collections import defaultdict
+from scipy import spatial
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
@@ -24,7 +25,16 @@ def closeness(id1, id2):
     for i in intersection:
         score += 1 / len(network[i])
     return score
-    
+
+def is_expat(id):
+    count=0
+    for friend in network[id]:
+        if (spatial.distance.euclidean([train_lat[id],train_lon[id]],[train_lat[friend],train_lon[friend]])>=2):
+            count+=1
+    if count>=(len(network[id])/2):
+        return True
+    return False
+
 
 
 if __name__ == "__main__":
@@ -58,9 +68,6 @@ if __name__ == "__main__":
     test_hour3=test_data[:,3]
     test_posts=test_data[:,4]
 
-    expat_ratio=np.array([0]*network_crude.shape[0])
-    print("We got here")
-
     count=0
     network[1].append(2)
     network[2].append(3)
@@ -70,16 +77,19 @@ if __name__ == "__main__":
 
     [network[a].append(b) for a,b in network_crude]
 
+    print(closeness(2172,233))
 
+    # for i in range(len(network)):
+    #      if (closeness(5931, i) != 0):
+    #          print("closeness of "+str(5931)+" and "+str(i)+" is: "+ str(closeness(5931,i)))
 
-
-
-
-    print(closeness(5283,343))
-
-    for i in range(len(network)):
-        if (closeness(233, i) != 0):
-            print("closeness of "+str(233)+" and "+str(i)+" is: "+ str(closeness(233,i)))
+    # print(len(train_posts))
+    # print(len(train_lat))
+    # expat_count=0
+    # for i in range(len(network)):
+    #     expat_count+=is_expat(i)
+    #
+    # print(expat_count)
 
 
 ### Number of anti-socials and number of them in the test set
