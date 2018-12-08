@@ -11,6 +11,7 @@ from sklearn.metrics import f1_score
 from sklearn.neighbors import DistanceMetric
 from collections import defaultdict
 from scipy import spatial
+from sklearn.neural_network import MLPRegressor
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
@@ -86,15 +87,42 @@ if __name__ == "__main__":
 
 
     training_data_all_else=training_data[:,1:7]
-
+    prediction_result=np.array([[0]*2]*test_data.shape[0])
 
     for i in range(49812):
         train_dict[train_id[i]]=training_data_all_else[i]
     [network_dict[a].append(b) for a, b in network_crude]
+    clf=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam')
+    clf.fit(training_data[:,1:4],training_data[:,4:6])
+    print(test_data[:,1:4].shape)
+    prediction_result=clf.predict(test_data[:,1:4])
 
-    print(closeness(2172,233))
+    print(test_id.shape)
+    print(prediction_result.shape)
+    final_result=np.concatenate((test_id,prediction_result[:,0],prediction_result[:,1]),axis=1)
+    print(final_result.shape)
+    np.savetxt("answer1.csv",final_result,delimiter=",")
 
-    # for i in range(len(network)):
+    # max=len(network_dict[1])
+    # print(type(network_dict[1]))
+    # for a in range(1,len(network_dict)):
+    #     if len(network_dict[a]) > max:
+    #         max=len(network_dict[a])
+    #
+    # friend_count=np.array([0]*(max+1))
+    # print("len",len(network_dict))
+    # for b in range(1,len(network_dict)):
+    #     friend_count[len(network_dict[b])]+=1
+    # f=0
+    # sum=0
+    # for element in friend_count:
+    #     f+=1
+    #     sum+=element
+    #     print(element)
+    #     if f>20:
+    #         break
+    # print("less than 20 friends:",sum)
+    # # for i in range(len(network)):
     #      if (closeness(5931, i) != 0):
     #          print("closeness of "+str(5931)+" and "+str(i)+" is: "+ str(closeness(5931,i)))
 
