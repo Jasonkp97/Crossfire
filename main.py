@@ -21,17 +21,17 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 def closeness(id1, id2):
     score = 0
-    intersection = set(network[id1]) & set(network[id2])
+    intersection = set(network_dict[id1]) & set(network_dict[id2])
     for i in intersection:
-        score += 1 / len(network[i])
+        score += 1 / len(network_dict[i])
     return score
 
-def is_expat(id):
+def is_Expat(id):
     count=0
-    for friend in network[id]:
+    for friend in network_dict[id]:
         if (spatial.distance.euclidean([train_lat[id],train_lon[id]],[train_lat[friend],train_lon[friend]])>=2):
             count+=1
-    if count>=(len(network[id])/2):
+    if count>=(len(network_dict[id]) / 2):
         return True
     return False
 
@@ -42,7 +42,9 @@ if __name__ == "__main__":
 
 ### Load in data and preprocess
     network_crude = np.loadtxt('graph.txt').astype(int)
-    network = defaultdict(list)
+    network_dict = defaultdict(list)
+    real_train_dict=defaultdict(list)
+
     training_crude=np.asarray(open('posts_train.txt',"r").readlines())[1:]
     test_crude=np.asarray(open('posts_test.txt','r').readlines())[1:]
     training_data=np.zeros((training_crude.shape[0]-1,7))
@@ -68,14 +70,13 @@ if __name__ == "__main__":
     test_hour3=test_data[:,3]
     test_posts=test_data[:,4]
 
-    count=0
-    network[1].append(2)
-    network[2].append(3)
-    network[1].append(3)
-    
+
+    training_data_all_else=training_data[:,1:7]
 
 
-    [network[a].append(b) for a,b in network_crude]
+    for i in range(49812):
+        real_train_dict[train_id[i]]=training_data_all_else[i]
+    [network_dict[a].append(b) for a, b in network_crude]
 
     print(closeness(2172,233))
 
