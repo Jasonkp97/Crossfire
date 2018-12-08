@@ -9,7 +9,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import zero_one_loss
 from sklearn.metrics import f1_score
 from sklearn.neighbors import DistanceMetric
-#999
+from collections import defaultdict
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
@@ -18,14 +18,15 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 
-
+    
 
 
 if __name__ == "__main__":
 
 
 ### Load in data and preprocess
-    network = np.loadtxt('graph.txt').astype(int)
+    network_crude = np.loadtxt('graph.txt').astype(int)
+    network = defaultdict(list)
     training_crude=np.asarray(open('posts_train.txt',"r").readlines())[1:]
     test_crude=np.asarray(open('posts_test.txt','r').readlines())[1:]
     training_data=np.zeros((training_crude.shape[0]-1,7))
@@ -51,7 +52,25 @@ if __name__ == "__main__":
     test_hour3=test_data[:,3]
     test_posts=test_data[:,4]
 
-    expat_ratio=np.array([0]*network.shape[0])
+    expat_ratio=np.array([0]*network_crude.shape[0])
+    print("We got here")
+
+    count=0
+    network[1].append(2)
+    network[2].append(3)
+    network[1].append(3)
+    
+    print(network)
+
+    [network[a].append(b) for a,b in network_crude]
+    
+
+    print(network)
+    
+
+    
+    
+
 
 ### Number of anti-socials and number of them in the test set
 
@@ -72,7 +91,7 @@ if __name__ == "__main__":
 
 ### Scatterplot of users' longitude and latitude
 
-    # fig = plt.figure()
+    #fig = plt.figure()
     # ax=fig.add_subplot(1,1,1)
     # ax.set_title("Lon_Lat_Graph")
     # ax.set_xlabel("Longitude")
