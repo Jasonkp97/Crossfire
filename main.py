@@ -172,7 +172,8 @@ if __name__ == "__main__":
     ax.set_title("Lon_Lat_Graph")
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
-    data=[e[6]>100 for e in training_data ]
+
+    data=training_data[training_data[e][6]>100 for e in range(training_data.shape[0]) ]
     ax=plt.scatter(data[:,5],data[:,4])
     print(training_data.shape)
     plt.show()
