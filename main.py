@@ -12,6 +12,7 @@ from sklearn.neighbors import DistanceMetric
 from collections import defaultdict
 from scipy import spatial
 from sklearn.neural_network import MLPRegressor
+from sklearn.ensemble import AdaBoostRegressor
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
@@ -49,11 +50,11 @@ if __name__ == "__main__":
     training_crude=np.asarray(open('posts_train.txt',"r").readlines())[1:]
     test_crude=np.asarray(open('posts_test.txt','r').readlines())[1:]
     training_data=np.zeros((training_crude.shape[0]-1,7))
-    test_data=np.zeros((test_crude.shape[0]-1,5))
+    test_data=np.zeros((test_crude.shape[0],5))
 
     for i in range(training_crude.shape[0]-1):
         training_data[i]=training_crude[i].split(",",-1)
-    for j in range(test_crude.shape[0]-1):
+    for j in range(test_crude.shape[0]):
         test_data[j]=test_crude[j].split(",",-1)
     
     train_y=training_data[:,4:6]
@@ -78,16 +79,21 @@ if __name__ == "__main__":
     for i in range(49812):
         train_dict[train_id[i]]=training_data_all_else[i]
     [network_dict[a].append(b) for a, b in network_crude]
-    clf=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam')
-    clf.fit(training_data[:,1:4],training_data[:,4:6])
-    print(test_data[:,1:4].shape)
-    prediction_result=clf.predict(test_data[:,1:4])
+    #clf=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam')
+    #clf.fit(training_data[:,1:4],training_data[:,4:6])
 
-    print(test_id.shape)
-    print(prediction_result.shape)
-    final_result=np.concatenate((test_id,prediction_result[:,0],prediction_result[:,1]),axis=1)
-    print(final_result.shape)
-    np.savetxt("answer1.csv",final_result,delimiter=",")
+    clf_boost_lat=AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=10,learning_rate=0.9,loss='square')
+    clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=10,learning_rate=0.9, loss='square')
+
+    clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
+    clf_boost_lon.fit(training_data[:,1:4],training_data[:,5])
+
+    prediction_lat=clf_boost_lat.predict(test_data[:,1:4])
+    prediction_lon=clf_boost_lon.predict(test_data[:,1:4])
+    real_test_id=test_id.astype(np.int32)
+    final_result=np.concatenate((real_test_id,prediction_lat,prediction_lon),axis=0).reshape(1000,3,order='F').tolist()
+
+    np.savetxt("answer1.csv",final_result,fmt=['% 4d','%1.3f','%1.3f'],delimiter=",")
 
     # max=len(network_dict[1])
     # print(type(network_dict[1]))
