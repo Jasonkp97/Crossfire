@@ -206,6 +206,7 @@ if __name__ == "__main__":
     print("EU All User: "+str(sum(eu_selector_all)))
 
 
+
     ax=plt.scatter(data[:,5],data[:,4])
     print(training_data.shape)
     #plt.show()
