@@ -173,10 +173,42 @@ if __name__ == "__main__":
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
 
-    data=training_data[training_data[e][6]>100 for e in range(training_data.shape[0]) ]
+    # data=training_data[training_data[e][6]>100 for e in range(training_data.shape[0]) ]
+    class_selector = training_data[:, 6] > 100
+    if class_selector.any():
+        data = training_data[class_selector]
+
+    us_selector_all = np.logical_and(
+                            np.logical_and(training_data[:,4]>25,training_data[:,4]<49),
+                            np.logical_and(training_data[:,5]>-130,training_data[:,5]<-70))
+
+    eu_selector_all = np.logical_and(
+                            np.logical_and(training_data[:,4]>36,training_data[:,4]<72),
+                            np.logical_and(training_data[:,5]>-9,training_data[:,5]<66))
+
+    us_selector_active = np.logical_and(
+                            np.logical_and(data[:,4]>25,data[:,4]<49),
+                            np.logical_and(data[:,5]>-130,data[:,5]<-70))
+
+    eu_selector_active = np.logical_and(
+                            np.logical_and(data[:,4]>36,data[:,4]<72),
+                            np.logical_and(data[:,5]>-9,data[:,5]<66))
+
+
+
+
+
+
+    print("US Active User: "+str(sum(us_selector_active)))
+    print("EU Active User: "+str(sum(eu_selector_active)))
+    print("All Active User: "+str(sum(class_selector)))
+    print("US All User: "+str(sum(us_selector_all)))
+    print("EU All User: "+str(sum(eu_selector_all)))
+
+
     ax=plt.scatter(data[:,5],data[:,4])
     print(training_data.shape)
-    plt.show()
+    #plt.show()
 
 
 
