@@ -93,21 +93,23 @@ if __name__ == "__main__":
     for i in range(49812):
         train_dict[train_id[i]]=training_data_all_else[i]
     [network_dict[a].append(b) for a, b in network_crude]
+###Learners(MLP Neural Network)
     #clf=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam')
     #clf.fit(training_data[:,1:4],training_data[:,4:6])
 
-    clf_boost_lat=AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=10,learning_rate=0.9,loss='square')
-    clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=10,learning_rate=0.9, loss='square')
-
-    clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
-    clf_boost_lon.fit(training_data[:,1:4],training_data[:,5])
-
-    prediction_lat=clf_boost_lat.predict(test_data[:,1:4])
-    prediction_lon=clf_boost_lon.predict(test_data[:,1:4])
-    real_test_id=test_id.astype(np.int32)
-    final_result=np.concatenate((real_test_id,prediction_lat,prediction_lon),axis=0).reshape(1000,3,order='F').tolist()
-
-    np.savetxt("answer1.csv",final_result,fmt=['% 4d','%1.3f','%1.3f'],delimiter=",")
+###Learners(Adaboosting with MLP Neural Network)
+    # clf_boost_lat=AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=5,learning_rate=0.3,loss='square')
+    # clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=5,learning_rate=0.3, loss='square')
+    #
+    # clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
+    # clf_boost_lon.fit(training_data[:,1:4],training_data[:,5])
+    #
+    # prediction_lat=clf_boost_lat.predict(test_data[:,1:4])
+    # prediction_lon=clf_boost_lon.predict(test_data[:,1:4])
+    # real_test_id=test_id.astype(np.int32)
+    # final_result=np.concatenate((real_test_id,prediction_lat,prediction_lon),axis=0).reshape(1000,3,order='F').tolist()
+    #
+    # np.savetxt("answer1.csv",final_result,fmt=['% 4d','%1.3f','%1.3f'],delimiter=",")
 
     # max=len(network_dict[1])
     # print(type(network_dict[1]))
@@ -163,17 +165,17 @@ if __name__ == "__main__":
     # print(count)
     # print(count1)
 
-### Scatterplot of users' longitude and latitude
-
-    #fig = plt.figure()
-    # ax=fig.add_subplot(1,1,1)
-    # ax.set_title("Lon_Lat_Graph")
-    # ax.set_xlabel("Longitude")
-    # ax.set_ylabel("Latitude")
-    #
-    # ax=plt.scatter(train_lon,train_lat)
-    #
-    # plt.show()
+###Scatterplot of users' longitude and latitude
+    count=0
+    fig = plt.figure()
+    ax=fig.add_subplot(1,1,1)
+    ax.set_title("Lon_Lat_Graph")
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+    data=[e[6]>100 for e in training_data ]
+    ax=plt.scatter(data[:,5],data[:,4])
+    print(training_data.shape)
+    plt.show()
 
 
 
