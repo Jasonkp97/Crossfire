@@ -1,10 +1,14 @@
 import numpy as np
+# import matplotlib
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib
 import dill as pickle
 import sklearn
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.cluster import AffinityPropagation
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import KMeans
 from sklearn.svm import SVC 
 #SVC is for Support Vector Classifier -- we called it SVM in class
 from sklearn.tree import DecisionTreeClassifier
@@ -24,10 +28,12 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 
 def get_cluster_info(data):
-    cluster=AffinityPropagation(damping=0.01)
+    cluster=KMeans(n_clusters=6,max_iter=200)
     cluster.fit(data)
 
-    return cluster.cluster_centers_,cluster.labels_
+    return cluster.labels_
+
+    #return cluster.cluster_centers_,cluster.labels_
 
 
 
@@ -196,12 +202,12 @@ if __name__ == "__main__":
     # print(count1)
 
 ###Scatterplot of users' longitude and latitude
-    # count=0
-    # fig = plt.figure()
-    # ax=fig.add_subplot(1,1,1)
-    # ax.set_title("Lon_Lat_Graph")
-    # ax.set_xlabel("Longitude")
-    # ax.set_ylabel("Latitude")
+    count=0
+    fig = plt.figure()
+    ax=fig.add_subplot(1,1,1)
+    ax.set_title("Lon_Lat_Graph")
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
 
     # data=training_data[training_data[e][6]>100 for e in range(training_data.shape[0]) ]
     # class_selector = training_data[:, 6] > 100
@@ -240,17 +246,23 @@ if __name__ == "__main__":
     #
     #
 
-    # ax=plt.scatter(training_data[:,5],tdata[:,4])
-    # print(training_data.shape)
-    # plt.show()
+
 
 
 
 
 ### Clustering
-    cluster_center,labels=get_cluster_info(training_data[:,4:6])
-    print("cluster_center",cluster_center)
-    print("labels",labels)
+    labels=np.array([0]*8)
+    labels=get_cluster_info(training_data[:,4:6])
 
-    
+    #print("cluster_center",cluster_center)
+    # max=np.array([0]*labels.max())
+    # for e in labels:
+    #     max[e-1]+=1
+    # for a in max:
+    #     print(a)
+    #
+    # ax = plt.scatter(training_data[:, 5], training_data[:, 4],c=labels)
+    #
+    # plt.show()
     
