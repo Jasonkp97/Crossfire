@@ -13,7 +13,9 @@ from sklearn.neighbors import DistanceMetric
 from collections import defaultdict
 from scipy import spatial
 from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import AdaBoostRegressor
+from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
+
+
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
@@ -52,6 +54,37 @@ def is_Expat(id):
         return True
     return False
 
+def posting_pattern_lifting(h1,h2,h3):
+    h1plus2=h1+h2
+    h1plus3=h1+h3
+    h2plus3=h2+h3
+    h1minus2=h1-h2
+    h1minus3=h1-h3
+    h2minus3=h2-h3
+    h1midnight=12-h1
+    h2midnight=12-h2
+    h3midnight=12-h3
+
+
+    X_train_lifted=np.concatenate(([h1].T,
+                            [h2].T,
+                            [h3].T,
+                            [h1plus2].T
+                            [h1plus3].T
+                            [h2plus3].T
+                            [h1minus2].T
+                            [h1minus3].T
+                            [h2minus3].T
+                            [h1midnight].T
+                            [h2midnight].T
+                            [h3midnight].T
+                            ), axis=1)
+    return X_train_lifted
+
+def continent_classification(X_train, y_train, X_test):
+    randomForest=RandomForestClassifier(n_estimators=100,criterion="entropy",max_depth=10,max_features=6,n_jobs=-1)
+    randomForest.fit(X_train,y_train)
+    return randomForest.predict(X_test)
 
 
 if __name__ == "__main__":
@@ -102,7 +135,7 @@ if __name__ == "__main__":
 
 ###Learners(Adaboosting with MLP Neural Network)
 
-    clf_boost_lat=AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=5,learning_rate=0.3,loss='square')
+    clf_boost_lat = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=5,learning_rate=0.3,loss='square')
     clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=5,learning_rate=0.3, loss='square')
 
     clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
@@ -129,7 +162,7 @@ if __name__ == "__main__":
     # knn_learn.fit(training_data[:,6],error_term)
     # final_prediction=knn_learn.predict()
 
-
+    de
 
 ### Find number of friends for each user
     # max=len(network_dict[1])
