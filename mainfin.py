@@ -23,6 +23,15 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
+def get_cluster_info(data):
+    cluster=AgglomerativeClustering()
+    cluster.fit(data)
+
+    return cluster.labels_
+
+    #return cluster.cluster_centers_,cluster.labels_
+
+
 
 def closeness(id1, id2):
     score = 0
@@ -264,11 +273,21 @@ if __name__ == "__main__":
     #
     #
 
-    # ax=plt.scatter(data[:,5],data[:,4])
-    # print(training_data.shape)
-    # plt.show()
 
+### Clustering
+    labels=np.array([0]*8)
+    labels=get_cluster_info(training_data[:,4:6])
 
+    #print("cluster_center",cluster_center)
+    max=np.array([0]*labels.max())
+    for e in labels:
+        max[e-1]+=1
+    for a in max:
+        print(a)
+
+    ax = plt.scatter(training_data[:, 5], training_data[:, 4],c=labels)
+
+    plt.show()
 
 ### 44666666666666668888
 
