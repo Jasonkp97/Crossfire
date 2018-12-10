@@ -82,7 +82,10 @@ def posting_pattern_lifting(h1,h2,h3):
     return X_train_lifted
 
 def continent_classification(X_train, y_train, X_test):
-    randomForest=RandomForestClassifier(n_estimators=100,criterion="entropy",max_depth=10,max_features=6,n_jobs=-1)
+    randomForest = RandomForestClassifier(n_estimators=100,
+                                          criterion="entropy",
+                                          max_depth=10,
+                                          max_features=6,n_jobs=-1)
     randomForest.fit(X_train,y_train)
     return randomForest.predict(X_test)
 
