@@ -14,14 +14,17 @@ from collections import defaultdict
 from scipy import spatial
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
-
-
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import OneHotEncoder
+from keras.utils import to_categorical
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.kernel_ridge import KernelRidge
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-warnings.simplefilter(action='ignore', category=DeprecationWarning)
+# import warnings
+# warnings.simplefilter(action='ignore', category=FutureWarning)
+# warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 def get_cluster_info(data):
     cluster=AgglomerativeClustering()
@@ -38,7 +41,7 @@ def closeness(id1, id2):
     intersection = set(network_dict[id1]) & set(network_dict[id2])
     for i in intersection:
         score += 1 / len(network_dict[i])
-    return score
+    return score+0.01
 
 def is_Expat(id):
     count=0
@@ -74,27 +77,30 @@ def posting_pattern_lifting(h1,h2,h3):
     h2midnight=12-h2
     h3midnight=12-h3
 
-
-    X_train_lifted=np.concatenate(([h1].T,
-                            [h2].T,
-                            [h3].T,
-                            [h1plus2].T
-                            [h1plus3].T
-                            [h2plus3].T
-                            [h1minus2].T
-                            [h1minus3].T
-                            [h2minus3].T
-                            [h1midnight].T
-                            [h2midnight].T
-                            [h3midnight].T
-                            ), axis=1)
+    print(type(np.array([h1])))
+    X_train_lifted=np.concatenate((np.array([h1]).T,
+                                   np.array([h2]).T,
+                                   np.array([h3]).T,
+                                   np.array([h1plus2]).T,
+                                   np.array([h1plus3]).T,
+                                   np.array([h2plus3]).T,
+                                   np.array([h1minus2]).T,
+                                   np.array([h1minus2]).T,
+                                   np.array([h2minus3]).T,
+                                   np.array([h1midnight]).T,
+                                   np.array([h2midnight]).T,
+                                   np.array([h3midnight]).T
+                                    ), axis=1)
     return X_train_lifted
 
-def continent_classification(X_train, y_train, X_test):
+def continent_classification(h1_tr,h2_tr,h3_tr, y_train, h1_te,h2_te,h3_te):
+    X_train=posting_pattern_lifting(h1_tr,h2_tr,h3_tr)
+    X_test=posting_pattern_lifting(h1_te,h2_te,h3_te)
     randomForest = RandomForestClassifier(n_estimators=100,
                                           criterion="entropy",
                                           max_depth=10,
                                           max_features=6,n_jobs=-1)
+
     randomForest.fit(X_train,y_train)
     return randomForest.predict(X_test)
 
@@ -133,12 +139,13 @@ if __name__ == "__main__":
 
 
     training_data_all_else=training_data[:,1:7]
-    prediction_result=np.array([[0]*2]*test_data.shape[0])
+    # prediction_result=np.array([[0]*2]*test_data.shape[0])
 
     for i in range(49812):
         train_dict[train_id[i]]=training_data_all_else[i]
     [network_dict[a].append(b) for a, b in network_crude]
 
+    print("143")
 
 ###Learners(MLP Neural Network)
     #clf=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam')
@@ -147,26 +154,26 @@ if __name__ == "__main__":
 
 ###Learners(Adaboosting with MLP Neural Network)
 
-    clf_boost_lat = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=5,learning_rate=0.3,loss='square')
-    clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=5,learning_rate=0.3, loss='square')
+    # clf_boost_lat = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=5,learning_rate=0.3,loss='square')
+    # clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=5,learning_rate=0.3, loss='square')
 
-    clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
-    clf_boost_lon.fit(training_data[:,1:4],training_data[:,5])
+    #clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
+    #clf_boost_lon.fit(training_data[:,1:4],training_data[:,5])
 
 ###Adaboost Predictions
 
-    for i in range(test_data.shape[0]):
-        closeness_vector=np.array([0]*test_data.shape[0])
-        for j in range(test_data.shape[0]):
-            closeness_vector[j]=closeness(i,j)
-
-
-    prediction_lat=clf_boost_lat.predict(test_data[:,1:4])
-    prediction_lon=clf_boost_lon.predict(test_data[:,1:4])
-    real_test_id=test_id.astype(np.int32)
-    final_result=np.concatenate((real_test_id,prediction_lat,prediction_lon),axis=0).reshape(1000,3,order='F').tolist()
-
-    np.savetxt("answer1.csv",final_result,fmt=['% 4d','%1.3f','%1.3f'],delimiter=",")
+    # for i in range(test_data.shape[0]):
+    #     closeness_vector=np.array([0]*test_data.shape[0])
+    #     for j in range(test_data.shape[0]):
+    #         closeness_vector[j]=closeness(i,j)
+    #
+    #
+    # prediction_lat=clf_boost_lat.predict(test_data[:,1:4])
+    # prediction_lon=clf_boost_lon.predict(test_data[:,1:4])
+    # real_test_id=test_id.astype(np.int32)
+    # final_result=np.concatenate((real_test_id,prediction_lat,prediction_lon),axis=0).reshape(1000,3,order='F').tolist()
+    #
+    # np.savetxt("answer1.csv",final_result,fmt=['% 4d','%1.3f','%1.3f'],delimiter=",")
 
 ###Learners(Forward Feeding)
     # error_term=np.concatenate((prediction_lat,prediction_lon),axis=0).reshape(1000,2,order='F').tolist()-training_data[:,4:6]
@@ -275,19 +282,63 @@ if __name__ == "__main__":
 
 
 ### Clustering
-    labels=np.array([0]*8)
-    labels=get_cluster_info(training_data[:,4:6])
+    train_continents=np.array([0] * 8)
+    print("before clustering")
+    #train_continents=get_cluster_info(training_data[:, 4:6])
+    train_continents= np.random.randint(4, size=len(train_hour1)) #dummy code. Please comment out prior to deployment
+    print("finish clustering")
 
+###Predict the cluster labels of test data
+    test_continents=continent_classification(train_hour1, train_hour2, train_hour3,
+                                              train_continents,
+                                              test_hour1, test_hour2, test_hour3)
+
+# ###One Hot Encoding of Categories
+#     #1. Encoder
+#     enc = OneHotEncoder(c)
+#
+#     # 2. FIT & Transform
+#     enc.fit([test_continents])
+#     test_continents_OHC = enc.transform([test_continents]).toarray()
+#     print(test_continents)
+#     print(test_continents_OHC)
+#     print(test_continents_OHC.shape)
+#     enc = OneHotEncoder(categories=4)
+#     enc.fit([train_continents])
+#     train_continents_OHC =enc.transform([train_continents]).toarray()
+#     print(train_continents_OHC.shape)
+
+    test_continents_OHC = to_categorical(test_continents)
+    train_continents_OHC = to_categorical(train_continents)
+
+    test_pred = np.zeros(shape=len(train_id))
+    test_pred_index = 0
+    for test_point in test_data:
+        id=test_point[0]
+        weight=np.zeros(shape=len(train_id))
+        weight_index = 0
+        for train_id_single in train_id:
+            weight[weight_index]=closeness(id,train_id_single)
+            weight_index += 1
+        clf_boost_multi = MultiOutputRegressor(AdaBoostRegressor(
+            base_estimator=KernelRidge(kernel=closeness),
+            n_estimators=5, learning_rate=0.3, loss='square'),-1)
+        #Please zip/concat X_train, and X_test
+        Xtrain=np.concatenate((training_data[:,1:4],[training_data[:,6]],train_continents_OHC),axis=1)
+        Xtest=np.concatenate((test_data[:,1:5],train_continents_OHC),axis=1)
+        ytrain=np.concatenate((training_data[:,4:6]))
+
+        clf_boost_multi.fit(Xtrain,ytrain)
+        clf_boost_multi.predict()
     #print("cluster_center",cluster_center)
-    max=np.array([0]*labels.max())
-    for e in labels:
-        max[e-1]+=1
-    for a in max:
-        print(a)
+    # max=np.array([0]*labels.max())
+    # for e in labels:
+    #     max[e-1]+=1
+    # for a in max:
+    #     print(a)
 
-    ax = plt.scatter(training_data[:, 5], training_data[:, 4],c=labels)
-
-    plt.show()
+    #ax = plt.scatter(training_data[:, 5], training_data[:, 4],c=labels)
+    #plt.show()
 
 ### 44666666666666668888
 
