@@ -1,14 +1,9 @@
 import numpy as np
-# import matplotlib
-# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib
 import dill as pickle
 import sklearn
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.cluster import DBSCAN
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.cluster import KMeans
 from sklearn.svm import SVC 
 #SVC is for Support Vector Classifier -- we called it SVM in class
 from sklearn.tree import DecisionTreeClassifier
@@ -18,23 +13,15 @@ from sklearn.neighbors import DistanceMetric
 from collections import defaultdict
 from scipy import spatial
 from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import AdaBoostRegressor
+from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
+
+
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
-
-
-def get_cluster_info(data):
-    cluster=KMeans(n_clusters=6,max_iter=200)
-    cluster.fit(data)
-
-    return cluster.labels_
-
-    #return cluster.cluster_centers_,cluster.labels_
-
 
 
 def closeness(id1, id2):
@@ -67,6 +54,40 @@ def is_Expat(id):
         return True
     return False
 
+def posting_pattern_lifting(h1,h2,h3):
+    h1plus2=h1+h2
+    h1plus3=h1+h3
+    h2plus3=h2+h3
+    h1minus2=h1-h2
+    h1minus3=h1-h3
+    h2minus3=h2-h3
+    h1midnight=12-h1
+    h2midnight=12-h2
+    h3midnight=12-h3
+
+
+    X_train_lifted=np.concatenate(([h1].T,
+                            [h2].T,
+                            [h3].T,
+                            [h1plus2].T
+                            [h1plus3].T
+                            [h2plus3].T
+                            [h1minus2].T
+                            [h1minus3].T
+                            [h2minus3].T
+                            [h1midnight].T
+                            [h2midnight].T
+                            [h3midnight].T
+                            ), axis=1)
+    return X_train_lifted
+
+def continent_classification(X_train, y_train, X_test):
+    randomForest = RandomForestClassifier(n_estimators=100,
+                                          criterion="entropy",
+                                          max_depth=10,
+                                          max_features=6,n_jobs=-1)
+    randomForest.fit(X_train,y_train)
+    return randomForest.predict(X_test)
 
 
 if __name__ == "__main__":
@@ -117,26 +138,26 @@ if __name__ == "__main__":
 
 ###Learners(Adaboosting with MLP Neural Network)
 
-    # clf_boost_lat=AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=5,learning_rate=0.3,loss='square')
-    # clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=5,learning_rate=0.3, loss='square')
-    #
-    # clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
-    # clf_boost_lon.fit(training_data[:,1:4],training_data[:,5])
+    clf_boost_lat = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam'),n_estimators=5,learning_rate=0.3,loss='square')
+    clf_boost_lon = AdaBoostRegressor(base_estimator=MLPRegressor(hidden_layer_sizes=(100, 3), activation='logistic', solver='adam'), n_estimators=5,learning_rate=0.3, loss='square')
+
+    clf_boost_lat.fit(training_data[:,1:4],training_data[:,4])
+    clf_boost_lon.fit(training_data[:,1:4],training_data[:,5])
 
 ###Adaboost Predictions
 
-    # for i in range(test_data.shape[0]):
-    #     closeness_vector=np.array([0]*test_data.shape[0])
-    #     for j in range(test_data.shape[0]):
-    #         closeness_vector[j]=closeness(i,j)
-    #
-    #
-    # prediction_lat=clf_boost_lat.predict(test_data[:,1:4])
-    # prediction_lon=clf_boost_lon.predict(test_data[:,1:4])
-    # real_test_id=test_id.astype(np.int32)
-    # final_result=np.concatenate((real_test_id,prediction_lat,prediction_lon),axis=0).reshape(1000,3,order='F').tolist()
+    for i in range(test_data.shape[0]):
+        closeness_vector=np.array([0]*test_data.shape[0])
+        for j in range(test_data.shape[0]):
+            closeness_vector[j]=closeness(i,j)
 
-    # np.savetxt("answer1.csv",final_result,fmt=['% 4d','%1.3f','%1.3f'],delimiter=",")
+
+    prediction_lat=clf_boost_lat.predict(test_data[:,1:4])
+    prediction_lon=clf_boost_lon.predict(test_data[:,1:4])
+    real_test_id=test_id.astype(np.int32)
+    final_result=np.concatenate((real_test_id,prediction_lat,prediction_lon),axis=0).reshape(1000,3,order='F').tolist()
+
+    np.savetxt("answer1.csv",final_result,fmt=['% 4d','%1.3f','%1.3f'],delimiter=",")
 
 ###Learners(Forward Feeding)
     # error_term=np.concatenate((prediction_lat,prediction_lon),axis=0).reshape(1000,2,order='F').tolist()-training_data[:,4:6]
@@ -202,12 +223,12 @@ if __name__ == "__main__":
     # print(count1)
 
 ###Scatterplot of users' longitude and latitude
-    count=0
-    fig = plt.figure()
-    ax=fig.add_subplot(1,1,1)
-    ax.set_title("Lon_Lat_Graph")
-    ax.set_xlabel("Longitude")
-    ax.set_ylabel("Latitude")
+    # count=0
+    # fig = plt.figure()
+    # ax=fig.add_subplot(1,1,1)
+    # ax.set_title("Lon_Lat_Graph")
+    # ax.set_xlabel("Longitude")
+    # ax.set_ylabel("Latitude")
 
     # data=training_data[training_data[e][6]>100 for e in range(training_data.shape[0]) ]
     # class_selector = training_data[:, 6] > 100
@@ -229,9 +250,6 @@ if __name__ == "__main__":
     # eu_selector_active = np.logical_and(
     #                         np.logical_and(data[:,4]>36,data[:,4]<72),
     #                         np.logical_and(data[:,5]>-9,data[:,5]<66))
-    # south_selector_active = np.logical_and(
-    #                         np.logical_and(data[:, 4] > 36, data[:, 4] < 72),
-    #                         np.logical_and(data[:, 5] > -9, data[:, 5] < 66))
     #
     #
     #
@@ -246,23 +264,13 @@ if __name__ == "__main__":
     #
     #
 
-
-
-
-
-
-### Clustering
-    labels=np.array([0]*8)
-    labels=get_cluster_info(training_data[:,4:6])
-
-    #print("cluster_center",cluster_center)
-    # max=np.array([0]*labels.max())
-    # for e in labels:
-    #     max[e-1]+=1
-    # for a in max:
-    #     print(a)
-    #
-    # ax = plt.scatter(training_data[:, 5], training_data[:, 4],c=labels)
-    #
+    # ax=plt.scatter(data[:,5],data[:,4])
+    # print(training_data.shape)
     # plt.show()
+
+
+
+### 44666666666666668888
+
+    
     
