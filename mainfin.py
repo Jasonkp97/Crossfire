@@ -1,4 +1,5 @@
 import numpy as np
+
 import matplotlib.pyplot as plt
 import matplotlib
 import dill as pickle
@@ -14,7 +15,7 @@ from collections import defaultdict
 from scipy import spatial
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import KMeans
 from sklearn.preprocessing import OneHotEncoder
 from keras.utils import to_categorical
 from sklearn.multioutput import MultiOutputRegressor
@@ -37,29 +38,32 @@ def get_useful_users(matrix):
     avg_h3=np.array([0]*24)
     num_h3=np.array([0]*24)
 
+
     for e in range(matrix.shape[0]):
-        avg_h2[matrix[e][1]]+=matrix[e][2]
-        num_h2[matrix[e][1]]+=1
-        avg_h3[matrix[e][1]]+=matrix[e][3]
-        num_h3[matrix[e][1]]+=1
+        if matrix[e][1]==25:
+            continue
+        avg_h2[int(matrix[e][1])]+=matrix[e][2]
+        num_h2[int(matrix[e][1])]+=1
+        avg_h3[int(matrix[e][1])]+=matrix[e][3]
+        num_h3[int(matrix[e][1])]+=1
 
     avg_h2=avg_h2/num_h2
     avg_h3=avg_h3/num_h3
 
     for e in range(num_rows):
 
-        if matrix[e][2]==25:
-            matrix[e][2]= avg_h2[matrix[e][1]]
+        if matrix[e][2]==25 and matrix[e][1]!= 25:
+            matrix[e][2]= avg_h2[int(matrix[e][1])]
 
-        if matrix[e][3]==25:
-            matrix[e][3]= avg_h3[matrix[e][1]]
+        if matrix[e][3]==25 and matrix[e][1]!=25:
+            matrix[e][3]= avg_h3[int(matrix[e][1])]
 
     return matrix
 
 
 
 def get_cluster_info(data):
-    cluster=AgglomerativeClustering()
+    cluster=KMeans(n_clusters=8,max_iter=200)
     cluster.fit(data)
 
     return cluster.labels_
@@ -142,7 +146,16 @@ if __name__ == "__main__":
         training_data[i]=training_crude[i].split(",",-1)
     for j in range(test_crude.shape[0]):
         test_data[j]=test_crude[j].split(",",-1)
-    
+
+#Preprocessing
+    for e in range(training_data.shape[0]):
+        for f in range(1,4):
+            training_data[e][f]=int(training_data[e][f])
+
+    training_data = get_useful_users(training_data)
+    print("Done")
+
+
     train_y=training_data[:,4:6]
     train_id=training_data[:,0]
     train_hour1=training_data[:,1]
@@ -160,6 +173,10 @@ if __name__ == "__main__":
 
 
     training_data_all_else=training_data[:,1:7]
+    test_data_all_else=test_data[:,1:5]
+
+    training_data_all_else=get_useful_users(training_data_all_else)
+    test_data_all_else=get_useful_users(test_data_all_else)
     # prediction_result=np.array([[0]*2]*test_data.shape[0])
 
     for i in range(49812):
@@ -299,20 +316,25 @@ if __name__ == "__main__":
     # print("EU All User: "+str(sum(eu_selector_all)))
     #
     #
+#Data_cleaning
+
+
+
 
 
 ### Clustering
     train_continents=np.array([0] * 8)
     print("before clustering")
-    #train_continents=get_cluster_info(training_data[:, 4:6])
-    train_continents= np.random.randint(4, size=len(train_hour1)) #dummy code. Please comment out prior to deployment
+    print(get_cluster_info(training_data[:,4:6]))
+    train_continents=get_cluster_info(training_data[:, 4:6])
+    #train_continents= np.random.randint(4, size=len(train_hour1)) #dummy code. Please comment out prior to deployment
     print("finish clustering")
 
 ###Predict the cluster labels of test data
-    # test_continents=continent_classification(train_hour1, train_hour2, train_hour3,
-    #                                           train_continents,
-    #                                           test_hour1, test_hour2, test_hour3)
-    test_continents= np.random.randint(4, size=len(test_hour1))    #dummy code. use the line above for deployment
+    test_continents=continent_classification(train_hour1, train_hour2, train_hour3,
+                                               train_continents,
+                                               test_hour1, test_hour2, test_hour3)
+    #test_continents= np.random.randint(4, size=len(test_hour1))    #dummy code. use the line above for deployment
 
 # ###One Hot Encoding of Categories
 #     #1. Encoder
