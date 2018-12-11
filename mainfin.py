@@ -28,6 +28,36 @@ import math
 # warnings.simplefilter(action='ignore', category=FutureWarning)
 # warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
+def get_useful_users(matrix):
+    num_rows=matrix.shape[0]
+    count=0
+
+    avg_h2=np.array([0]*24)
+    num_h2=np.array([0]*24)
+    avg_h3=np.array([0]*24)
+    num_h3=np.array([0]*24)
+
+    for e in range(matrix.shape[0]):
+        avg_h2[matrix[e][1]]+=matrix[e][2]
+        num_h2[matrix[e][1]]+=1
+        avg_h3[matrix[e][1]]+=matrix[e][3]
+        num_h3[matrix[e][1]]+=1
+
+    avg_h2=avg_h2/num_h2
+    avg_h3=avg_h3/num_h3
+
+    for e in range(num_rows):
+
+        if matrix[e][2]==25:
+            matrix[e][2]= avg_h2[matrix[e][1]]
+
+        if matrix[e][3]==25:
+            matrix[e][3]= avg_h3[matrix[e][1]]
+
+    return matrix
+
+
+
 def get_cluster_info(data):
     cluster=AgglomerativeClustering()
     cluster.fit(data)
