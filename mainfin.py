@@ -71,9 +71,8 @@ def get_cluster_info(data):
     #return cluster.cluster_centers_,cluster.labels_
 
 def clock_coord(hours):
+    hours_coord = np.zeros(shape=(len(hours), 2))
     for i in range(len(hours)):
-        i=int(i)
-        hours_coord=np.zeros(shape=(len(hours),2))
         hours_coord[i] = [math.cos((2 * math.pi) * (hours[i] / 24)),math.sin((2 * math.pi) * (hours[i] / 24))]
     return hours_coord
 
@@ -111,7 +110,6 @@ def posting_pattern_lifting(h1,h2,h3):
     h1clock=clock_coord(h1)
     h2clock=clock_coord(h2)
     h3clock=clock_coord(h3)
-
     X_train_lifted=np.concatenate((h1clock,
                                    h2clock,
                                    h3clock
@@ -122,9 +120,10 @@ def continent_classification(h1_tr,h2_tr,h3_tr, y_train, h1_te,h2_te,h3_te):
     X_train=posting_pattern_lifting(h1_tr,h2_tr,h3_tr)
     X_test=posting_pattern_lifting(h1_te,h2_te,h3_te)
     randomForest = RandomForestClassifier(n_estimators=100,
-                                          criterion="entropy",
-                                          max_depth=10,
-                                          max_features=6,n_jobs=-1)
+                                           #criterion="entropy",
+                                           max_depth=20,
+                                           max_features=4,n_jobs=-1)
+
 
     randomForest.fit(X_train,y_train)
     return randomForest.predict(X_test)
@@ -153,6 +152,7 @@ if __name__ == "__main__":
             training_data[e][f]=int(training_data[e][f])
 
     training_data = get_useful_users(training_data)
+    test_data = get_useful_users(test_data)
     print("Done")
 
 
@@ -331,6 +331,7 @@ if __name__ == "__main__":
     print("finish clustering")
 
 ###Predict the cluster labels of test data
+
     test_continents=continent_classification(train_hour1, train_hour2, train_hour3,
                                                train_continents,
                                                test_hour1, test_hour2, test_hour3)
@@ -351,6 +352,10 @@ if __name__ == "__main__":
 #     train_continents_OHC =enc.transform([train_continents]).toarray()
 #     print(train_continents_OHC.shape)
 
+    print("test_continents")
+    print(test_continents)
+    print("train_continents")
+    print(train_continents)
     test_continents_OHC = to_categorical(test_continents)
     train_continents_OHC = to_categorical(train_continents)
 
