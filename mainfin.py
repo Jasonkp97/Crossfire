@@ -19,6 +19,8 @@ from sklearn.preprocessing import OneHotEncoder
 from keras.utils import to_categorical
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.kernel_ridge import KernelRidge
+from sklearn.linear_model import LinearRegression
+import math
 
 
 # Uncomment the following 3 lines if you're getting annoyed with warnings from sklearn
@@ -34,14 +36,19 @@ def get_cluster_info(data):
 
     #return cluster.cluster_centers_,cluster.labels_
 
-
+def clock_coord(hours):
+    for i in range(len(hours)):
+        i=int(i)
+        hours_coord=np.zeros(shape=(len(hours),2))
+        hours_coord[i] = [math.cos((2 * math.pi) * (hours[i] / 24)),math.sin((2 * math.pi) * (hours[i] / 24))]
+    return hours_coord
 
 def closeness(id1, id2):
     score = 0
     intersection = set(network_dict[id1]) & set(network_dict[id2])
     for i in intersection:
         score += 1 / len(network_dict[i])
-    return score+0.01
+    return score
 
 def is_Expat(id):
     count=0
@@ -67,29 +74,13 @@ def is_Expat(id):
     return False
 
 def posting_pattern_lifting(h1,h2,h3):
-    h1plus2=h1+h2
-    h1plus3=h1+h3
-    h2plus3=h2+h3
-    h1minus2=h1-h2
-    h1minus3=h1-h3
-    h2minus3=h2-h3
-    h1midnight=12-h1
-    h2midnight=12-h2
-    h3midnight=12-h3
+    h1clock=clock_coord(h1)
+    h2clock=clock_coord(h2)
+    h3clock=clock_coord(h3)
 
-    print(type(np.array([h1])))
-    X_train_lifted=np.concatenate((np.array([h1]).T,
-                                   np.array([h2]).T,
-                                   np.array([h3]).T,
-                                   np.array([h1plus2]).T,
-                                   np.array([h1plus3]).T,
-                                   np.array([h2plus3]).T,
-                                   np.array([h1minus2]).T,
-                                   np.array([h1minus2]).T,
-                                   np.array([h2minus3]).T,
-                                   np.array([h1midnight]).T,
-                                   np.array([h2midnight]).T,
-                                   np.array([h3midnight]).T
+    X_train_lifted=np.concatenate((h1clock,
+                                   h2clock,
+                                   h3clock
                                     ), axis=1)
     return X_train_lifted
 
@@ -145,7 +136,6 @@ if __name__ == "__main__":
         train_dict[train_id[i]]=training_data_all_else[i]
     [network_dict[a].append(b) for a, b in network_crude]
 
-    print("143")
 
 ###Learners(MLP Neural Network)
     #clf=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam')
@@ -289,9 +279,10 @@ if __name__ == "__main__":
     print("finish clustering")
 
 ###Predict the cluster labels of test data
-    test_continents=continent_classification(train_hour1, train_hour2, train_hour3,
-                                              train_continents,
-                                              test_hour1, test_hour2, test_hour3)
+    # test_continents=continent_classification(train_hour1, train_hour2, train_hour3,
+    #                                           train_continents,
+    #                                           test_hour1, test_hour2, test_hour3)
+    test_continents= np.random.randint(4, size=len(test_hour1))    #dummy code. use the line above for deployment
 
 # ###One Hot Encoding of Categories
 #     #1. Encoder
@@ -311,25 +302,35 @@ if __name__ == "__main__":
     test_continents_OHC = to_categorical(test_continents)
     train_continents_OHC = to_categorical(train_continents)
 
-    test_pred = np.zeros(shape=len(train_id))
+
+    test_pred = np.zeros(shape=(len(train_id),2))
     test_pred_index = 0
     for test_point in test_data:
+        #generate the closeness vector for this test point
         id=test_point[0]
         weight=np.zeros(shape=len(train_id))
         weight_index = 0
         for train_id_single in train_id:
             weight[weight_index]=closeness(id,train_id_single)
             weight_index += 1
+        #fit learner with weights being the closeness
+            #generate learner
         clf_boost_multi = MultiOutputRegressor(AdaBoostRegressor(
-            base_estimator=KernelRidge(kernel=closeness),
-            n_estimators=5, learning_rate=0.3, loss='square'),-1)
-        #Please zip/concat X_train, and X_test
-        Xtrain=np.concatenate((training_data[:,1:4],[training_data[:,6]],train_continents_OHC),axis=1)
-        Xtest=np.concatenate((test_data[:,1:5],train_continents_OHC),axis=1)
-        ytrain=np.concatenate((training_data[:,4:6]))
+            base_estimator=LinearRegression(),
+            n_estimators=9, loss='square'),-1)
 
-        clf_boost_multi.fit(Xtrain,ytrain)
-        clf_boost_multi.predict()
+
+        Xtrain=np.concatenate((posting_pattern_lifting(training_data[:,1],training_data[:,2],training_data[:,3]),
+                               np.array([training_data[:,6]]).T,train_continents_OHC),axis=1)
+        Xtest=np.concatenate((posting_pattern_lifting([test_point[1]],[test_point[2]],[test_point[3]]).flatten(),[test_point[4]],test_continents_OHC[test_pred_index]))
+        ytrain=training_data[:,4:6]
+        clf_boost_multi.fit(Xtrain,ytrain,weight)
+        #        import pdb; pdb.set_trace()
+        pred=clf_boost_multi.predict(Xtest.reshape(1, -1))
+        test_pred[test_pred_index][0]=pred.flatten()[0]
+        test_pred[test_pred_index][1]=pred.flatten()[1]
+        test_pred_index += 1
+
     #print("cluster_center",cluster_center)
     # max=np.array([0]*labels.max())
     # for e in labels:
