@@ -132,7 +132,7 @@ def continent_classification(h1_tr, h2_tr, h3_tr, y_train, h1_te, h2_te, h3_te):
 
 
 if __name__ == "__main__":
-
+    print("Loading data")
     ### Load in data and preprocess
     network_crude = np.loadtxt('graph.txt').astype(int)
     network_dict = defaultdict(list)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     training_data = get_useful_users(training_data)
     test_data = get_useful_users(test_data)
-    print("Done")
+    print("Done. Slicing data")
 
     train_y = training_data[:, 4:6]
     train_id = training_data[:, 0]
@@ -171,10 +171,11 @@ if __name__ == "__main__":
     test_hour2 = test_data[:, 2]
     test_hour3 = test_data[:, 3]
     test_posts = test_data[:, 4]
-
+    np.savetxt("id.csv",test_id)
+    print("saved")
     training_data_all_else = training_data[:, 1:7]
     test_data_all_else = test_data[:, 1:5]
-
+    print("Preprocessing user data")
     training_data_all_else = get_useful_users(training_data_all_else)
     test_data_all_else = get_useful_users(test_data_all_else)
     # prediction_result=np.array([[0]*2]*test_data.shape[0])
@@ -182,7 +183,7 @@ if __name__ == "__main__":
     for i in range(49812):
         train_dict[train_id[i]] = training_data_all_else[i]
     [network_dict[a].append(b) for a, b in network_crude]
-
+    print("Finish network data")
     ###Learners(MLP Neural Network)
     # clf=MLPRegressor(hidden_layer_sizes=(100,3),activation='logistic',solver='adam')
     # clf.fit(training_data[:,1:4],training_data[:,4:6])
@@ -314,6 +315,7 @@ if __name__ == "__main__":
     # Data_cleaning
 
     ### Clustering
+
     train_continents = np.array([0] * 8)
     print("before clustering")
     print(get_cluster_info(training_data[:, 4:6]))
@@ -326,6 +328,8 @@ if __name__ == "__main__":
     test_continents = continent_classification(train_hour1, train_hour2, train_hour3,
                                                train_continents,
                                                test_hour1, test_hour2, test_hour3)
+
+    print("finish test data classification")
     # test_continents= np.random.randint(4, size=len(test_hour1))    #dummy code. use the line above for deployment
 
     # ###One Hot Encoding of Categories
@@ -350,6 +354,7 @@ if __name__ == "__main__":
     test_continents_OHC = to_categorical(test_continents)
     train_continents_OHC = to_categorical(train_continents)
 
+    print("start predicting lat")
     ###predicting latitude
     lat_pred=np.zeros(len(test_data))
     pred_index=0
@@ -376,7 +381,7 @@ if __name__ == "__main__":
         #        import pdb; pdb.set_trace()
         lat_pred[pred_index] = clf_boost_multi.predict(Xtest.reshape(1, -1))
         pred_index += 1
-
+    print("start predicting lon")
     ###Predicting Longtitude with predicted latitute
     lon_pred=np.zeros(len(test_data))
     pred_index=0
@@ -403,7 +408,8 @@ if __name__ == "__main__":
         #        import pdb; pdb.set_trace()
         lon_pred[pred_index] = clf_boost_multi.predict(Xtest.reshape(1, -1))
         pred_index += 1
-
+    print("lat pred", lat_pred)
+    print("lon pred", lon_pred)
 
     # print("cluster_center",cluster_center)
     # max=np.array([0]*labels.max())
