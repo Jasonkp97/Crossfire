@@ -22,6 +22,7 @@ from keras.utils import to_categorical
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 import math
 import random
 
@@ -163,9 +164,11 @@ if __name__ == "__main__":
     while len(s) < 1000:
         s.add(random.randint(0, len(training_data)-1))
     index_array=np.array(list(s))
-    test_data=training_data[index_array]
+    test_data=training_data[index_array,0:5]
+    test_target=training_data[index_array,5:7]
     print(test_data)
     print(test_data.shape)
+    print(test_target.shape)
     exit(233)
 
     np.array(list(s))
@@ -402,6 +405,10 @@ if __name__ == "__main__":
         test_pred_index += 1
         print("test_pred_index",test_pred_index)
     print("Final prediction",test_pred)
+    print("MSE")
+    print(mean_squared_error(test_pred,test_target))
+    print("RMSE")
+    print(math.sqrt(mean_squared_error(test_pred,test_target)))
     np.savetxt("answer.csv", test_pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
     # print("cluster_center",cluster_center)
     # max=np.array([0]*labels.max())
