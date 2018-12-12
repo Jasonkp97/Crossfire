@@ -24,6 +24,8 @@ from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Ridge
+from sklearn.svm import SVR
 import math
 import random
 
@@ -387,10 +389,11 @@ if __name__ == "__main__":
             weight_index += 1
         # fit learner with weights being the closeness
         # generate learner
-        clf_boost_multi = MultiOutputRegressor(AdaBoostRegressor(
-            base_estimator=LogisticRegression(C=0.1,n_jobs=-1),
-            n_estimators=7, loss='square'), n_jobs=-1)
-
+        # clf_boost_multi = MultiOutputRegressor(AdaBoostRegressor(
+        #     base_estimator=LinearRegression(n_jobs=-1),
+        #     n_estimators=7, loss='linear'), n_jobs=-1)
+        # clf_boost_multi = KernelRidge(alpha=0.5)
+        clf_boost_multi = SVR(kernel='poly')
         Xtrain = np.concatenate((posting_pattern_lifting(training_data[:, 1], training_data[:, 2], training_data[:, 3]),
                                  np.array([training_data[:, 6]]).T, train_continents_OHC), axis=1)
         Xtest = np.concatenate((posting_pattern_lifting([test_point[1]], [test_point[2]], [test_point[3]]).flatten(),
@@ -409,8 +412,9 @@ if __name__ == "__main__":
     print(mean_squared_error(test_pred,test_target))
     print("RMSE")
     print(math.sqrt(mean_squared_error(test_pred,test_target)))
-    np.savetxt("answer.csv", test_pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
-    np.savetxt("answer_target.csv", test_target, fmt=['%1.3f', '%1.3f'], delimiter=",")
+    print(test_target.shape)
+    np.savetxt("answer_2.csv", test_pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
+    np.savetxt("answer_target_2G.csv", test_target, fmt=['%1.3f', '%1.3f'], delimiter=",")
     # print("cluster_center",cluster_center)
     # max=np.array([0]*labels.max())
     # for e in labels:

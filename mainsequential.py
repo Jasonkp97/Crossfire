@@ -21,6 +21,7 @@ from keras.utils import to_categorical
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVR
 import math
 
 
@@ -368,9 +369,10 @@ if __name__ == "__main__":
             weight_index += 1
         # fit learner with weights being the closeness
         # generate learner
-        clf_boost_multi = AdaBoostRegressor(
-            base_estimator=LinearRegression(),
-            n_estimators=9, loss='square')
+        # clf_boost_multi = AdaBoostRegressor(
+        #     base_estimator=LinearRegression(),
+        #     n_estimators=9, loss='square')
+        clf_boost_multi = SVR(kernel='poly')
 
         Xtrain = np.concatenate((posting_pattern_lifting(training_data[:, 1], training_data[:, 2], training_data[:, 3]),
                                  np.array([training_data[:, 6]]).T, train_continents_OHC), axis=1)
@@ -395,9 +397,10 @@ if __name__ == "__main__":
             weight_index += 1
         # fit learner with weights being the closeness
         # generate learner
-        clf_boost_multi = AdaBoostRegressor(
-            base_estimator=LinearRegression(),
-            n_estimators=9, loss='square')
+        # clf_boost_multi = AdaBoostRegressor(
+        #     base_estimator=LinearRegression(),
+        #     n_estimators=9, loss='square')
+        clf_boost_multi = SVR(kernel='poly')
 
         Xtrain = np.concatenate((posting_pattern_lifting(training_data[:, 1], training_data[:, 2], training_data[:, 3]),
                                  np.array([training_data[:, 6]]).T, train_continents_OHC,np.array([lat_pred]).T), axis=1)
@@ -410,6 +413,8 @@ if __name__ == "__main__":
         pred_index += 1
     print("lat pred", lat_pred)
     print("lon pred", lon_pred)
+    pred=np.concatenate((np.array([lat_pred]).T,np.array([lat_pred]).T),axis=1)
+    np.savetxt("answer_Sequential.csv", pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
 
     # print("cluster_center",cluster_center)
     # max=np.array([0]*labels.max())
