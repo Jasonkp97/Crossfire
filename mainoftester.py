@@ -23,6 +23,7 @@ from sklearn.multioutput import MultiOutputRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+from sklearn.linear_model import LogisticRegression
 import math
 import random
 
@@ -387,8 +388,8 @@ if __name__ == "__main__":
         # fit learner with weights being the closeness
         # generate learner
         clf_boost_multi = MultiOutputRegressor(AdaBoostRegressor(
-            base_estimator=LinearRegression(),
-            n_estimators=9, loss='square'), -1)
+            base_estimator=LogisticRegression(C=0.1,n_jobs=-1),
+            n_estimators=7, loss='square'), n_jobs=-1)
 
         Xtrain = np.concatenate((posting_pattern_lifting(training_data[:, 1], training_data[:, 2], training_data[:, 3]),
                                  np.array([training_data[:, 6]]).T, train_continents_OHC), axis=1)
@@ -409,6 +410,7 @@ if __name__ == "__main__":
     print("RMSE")
     print(math.sqrt(mean_squared_error(test_pred,test_target)))
     np.savetxt("answer.csv", test_pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
+    np.savetxt("answer_target.csv", test_target, fmt=['%1.3f', '%1.3f'], delimiter=",")
     # print("cluster_center",cluster_center)
     # max=np.array([0]*labels.max())
     # for e in labels:
