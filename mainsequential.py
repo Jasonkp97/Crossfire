@@ -377,7 +377,7 @@ if __name__ == "__main__":
         Xtrain = np.concatenate((posting_pattern_lifting(training_data[:, 1], training_data[:, 2], training_data[:, 3]),
                                  np.array([training_data[:, 6]]).T, train_continents_OHC), axis=1)
         Xtest = np.concatenate((posting_pattern_lifting([test_point[1]], [test_point[2]], [test_point[3]]).flatten(),
-                                [test_point[4]], test_continents_OHC[test_pred_index]))
+                                [test_point[4]], test_continents_OHC[pred_index]))
         ytrain = training_data[:, 4]
         clf_boost_multi.fit(Xtrain, ytrain, weight)
         #        import pdb; pdb.set_trace()
