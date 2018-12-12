@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import dill as pickle
 import sklearn
+import random
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVC
 # SVC is for Support Vector Classifier -- we called it SVM in class
@@ -14,7 +15,8 @@ from sklearn.neighbors import DistanceMetric
 from collections import defaultdict
 from scipy import spatial
 from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import AdaBoostRegressor, AdaBoostClassifier,RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import OneHotEncoder
@@ -357,11 +359,75 @@ if __name__ == "__main__":
 
     test_pred = np.zeros(shape=(len(train_id), 2))
     test_pred_index = 0
-    print("start predicting lat and lon")
+    print("starting gridsearch")
 
-    classifier_grid={KNeighborsClassifier(),}
+###Start of GridSearch
+
+    knn=KNeighborsClassifier()
+    dtc=DecisionTreeClassifier()
+    rfc=RandomForestClassifier()
+    abc=AdaBoostClassifier()
+    gbc=GradientBoostingClassifier()
 
 
+    KNN_grid={'n_neighbors':[1,2,3,4,5,6,7,8,9,10],'algorithm':['ball_tree','kd_tree','brute','auto'],'n_jobs':[1,2,3,4,5]}
+
+
+    DTC_grid={'criterion':['gini','entropy']}
+
+    RFC_grid={'n_estimators':[100,200,300,400,500],'criterion':['gini','entropy'],'n_jobs':[1,2,3,4,5]}
+
+    ABC_grid={'base_estimator':[knn,dtc,rfc,abc,gbc],'n_estimators':[50,100,150,200,250,300]}
+
+    GBC_grid={'loss':['deviance','exponential'],'n_estimators':[50,100,150,200,250,300]}
+
+    clf_KNN=GridSearchCV(estimator=knn,param_grid=KNN_grid,scoring='f1')
+    clf_DTC=GridSearchCV(estimator=dtc,param_grid=DTC_grid,scoring='f1')
+    clf_RFC=GridSearchCV(estimator=rfc,param_grid=RFC_grid,scoring='f1')
+    clf_ABC=GridSearchCV(estimator=abc,param_grid=ABC_grid,scoring='f1')
+    clf_GBC=GridSearchCV(estimator=gbc,param_grid=GBC_grid,scoring='f1')
+
+
+
+    for i in range(10):
+        x=random.randint(0,20000)
+        y=random.randint(x+5000,44000)
+        clf_KNN.fit(training_data[x:(x+5000),1:4],train_continents_OHC[x:(x+5000)])
+        print("KNN best:",clf_KNN.best_estimator_)
+        print("Score:",clf_KNN.best_score_)
+        print("\n")
+
+    for i in range(10):
+        x = random.randint(0, 20000)
+        y = random.randint(x+5000, 44000)
+        clf_DTC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        print("DTC best:", clf_DTC.best_estimator_)
+        print("Score:", clf_DTC.best_score_)
+        print("\n")
+    for i in range(10):
+        x = random.randint(0, 20000)
+        y = random.randint(x+5000, 44000)
+        clf_RFC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        print("RFC best:", clf_RFC.best_estimator_)
+        print("Score:", clf_RFC.best_score_)
+        print("\n")
+
+    for i in range(10):
+        x = random.randint(0, 20000)
+        y = random.randint(x+5000, 44000)
+        clf_ABC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        print("ABC best:", clf_ABC.best_estimator_)
+        print("Score:", clf_ABC.best_score_)
+        print("\n")
+
+    for i in range(10):
+        x = random.randint(0, 20000)
+        y = random.randint(x+5000, 44000)
+        clf_GBC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        print("GBC best:", clf_GBC.best_estimator_)
+        print("Score:", clf_GBC.best_score_)
+        print("\n")
+### End of GridSearch
 
     for test_point in test_data:
         print("test_pred",test_pred_index)
