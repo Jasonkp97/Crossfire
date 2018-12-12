@@ -372,7 +372,6 @@ if __name__ == "__main__":
 
     KNN_grid={'n_neighbors':[1,2,3,4,5,6,7,8,9,10],'algorithm':['ball_tree','kd_tree','brute','auto'],'n_jobs':[1,2,3,4,5]}
 
-
     DTC_grid={'criterion':['gini','entropy']}
 
     RFC_grid={'n_estimators':[100,200,300,400,500],'criterion':['gini','entropy'],'n_jobs':[1,2,3,4,5]}
@@ -392,7 +391,7 @@ if __name__ == "__main__":
     for i in range(10):
         x=random.randint(0,20000)
         y=random.randint(x+5000,44000)
-        clf_KNN.fit(training_data[x:(x+5000),1:4],train_continents_OHC[x:(x+5000)])
+        clf_KNN.fit(training_data[x:(x+5000),1:4],train_continents[x:(x+5000)])
         print("KNN best:",clf_KNN.best_estimator_)
         print("Score:",clf_KNN.best_score_)
         print("\n")
@@ -400,14 +399,14 @@ if __name__ == "__main__":
     for i in range(10):
         x = random.randint(0, 20000)
         y = random.randint(x+5000, 44000)
-        clf_DTC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        clf_DTC.fit(training_data[x:(x + 5000), 1:4], train_continents[x:(x + 5000)])
         print("DTC best:", clf_DTC.best_estimator_)
         print("Score:", clf_DTC.best_score_)
         print("\n")
     for i in range(10):
         x = random.randint(0, 20000)
         y = random.randint(x+5000, 44000)
-        clf_RFC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        clf_RFC.fit(training_data[x:(x + 5000), 1:4], train_continents[x:(x + 5000)])
         print("RFC best:", clf_RFC.best_estimator_)
         print("Score:", clf_RFC.best_score_)
         print("\n")
@@ -415,7 +414,7 @@ if __name__ == "__main__":
     for i in range(10):
         x = random.randint(0, 20000)
         y = random.randint(x+5000, 44000)
-        clf_ABC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        clf_ABC.fit(training_data[x:(x + 5000), 1:4], train_continents[x:(x + 5000)])
         print("ABC best:", clf_ABC.best_estimator_)
         print("Score:", clf_ABC.best_score_)
         print("\n")
@@ -423,7 +422,7 @@ if __name__ == "__main__":
     for i in range(10):
         x = random.randint(0, 20000)
         y = random.randint(x+5000, 44000)
-        clf_GBC.fit(training_data[x:(x + 5000), 1:4], train_continents_OHC[x:(x + 5000)])
+        clf_GBC.fit(training_data[x:(x + 5000), 1:4], train_continents[x:(x + 5000)])
         print("GBC best:", clf_GBC.best_estimator_)
         print("Score:", clf_GBC.best_score_)
         print("\n")
