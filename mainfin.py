@@ -15,6 +15,7 @@ from collections import defaultdict
 from scipy import spatial
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import OneHotEncoder
 from keras.utils import to_categorical
@@ -61,8 +62,11 @@ def get_useful_users(matrix):
 
 
 def get_cluster_info(data):
-    cluster = KMeans(n_clusters=8, max_iter=200)
-    cluster.fit(data)
+    cluster = KMeans(n_clusters=8, max_iter=100)
+    temp=np.array([[0]*1]*data[:,1].shape[0])
+    temp[:,0]=data[:,1]
+    cluster.fit(temp)
+
 
     return cluster.labels_
 
@@ -317,7 +321,7 @@ if __name__ == "__main__":
     ### Clustering
     train_continents = np.array([0] * 8)
     print("before clustering")
-    print(get_cluster_info(training_data[:, 4:6]))
+
     train_continents = get_cluster_info(training_data[:, 4:6])
     # train_continents= np.random.randint(4, size=len(train_hour1)) #dummy code. Please comment out prior to deployment
     print("finish clustering")
@@ -348,12 +352,17 @@ if __name__ == "__main__":
     print(test_continents)
     print("train_continents")
     print(train_continents)
-    test_continents_OHC = to_categorical(test_continents)
+    test_continents_OHC = to_categorical(test_continents,num_classes=8)
     train_continents_OHC = to_categorical(train_continents)
 
     test_pred = np.zeros(shape=(len(train_id), 2))
     test_pred_index = 0
     print("start predicting lat and lon")
+
+    classifier_grid={KNeighborsClassifier(),}
+
+
+
     for test_point in test_data:
         print("test_pred",test_pred_index)
         # generate the closeness vector for this test point
@@ -381,6 +390,7 @@ if __name__ == "__main__":
         test_pred[test_pred_index][0] = pred.flatten()[0]
         test_pred[test_pred_index][1] = pred.flatten()[1]
         test_pred_index += 1
+        print("test_pred_index",test_pred_index)
     print("Final prediction",test_pred)
     np.savetxt("answer.csv", test_pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
     # print("cluster_center",cluster_center)
