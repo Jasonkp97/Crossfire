@@ -164,7 +164,7 @@ if __name__ == "__main__":
     while len(s) < 1000:
         s.add(random.randint(0, len(training_data)-1))
     index_array=np.array(list(s))
-    test_data=training_data[index_array,(1,2,3,6)]
+    test_data=np.concatenate((training_data[index_array,0:4],np.array([training_data[index_array,6]]).T),axis=1)
     test_target=training_data[index_array,4:6]
     print(test_data)
     print(test_data.shape)
