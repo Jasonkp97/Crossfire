@@ -164,12 +164,11 @@ if __name__ == "__main__":
     while len(s) < 1000:
         s.add(random.randint(0, len(training_data)-1))
     index_array=np.array(list(s))
-    test_data=training_data[index_array,0:5]
-    test_target=training_data[index_array,5:7]
+    test_data=training_data[index_array,(1,2,3,6)]
+    test_target=training_data[index_array,4:6]
     print(test_data)
     print(test_data.shape)
     print(test_target.shape)
-    exit(233)
 
     np.array(list(s))
     print("Done loading")
@@ -368,7 +367,7 @@ if __name__ == "__main__":
     test_continents_OHC = to_categorical(test_continents,num_classes=8)
     train_continents_OHC = to_categorical(train_continents)
 
-    test_pred = np.zeros(shape=(len(train_id), 2))
+    test_pred = np.zeros(shape=(len(test_id), 2))
     test_pred_index = 0
     print("start predicting lat and lon")
 
