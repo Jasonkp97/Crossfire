@@ -318,20 +318,20 @@ if __name__ == "__main__":
 
     ### Clustering
 
-    train_continents = np.array([0] * 8)
-    print("before clustering")
-    print(get_cluster_info(training_data[:, 4:6]))
-    train_continents = get_cluster_info(training_data[:, 4:6])
-    # train_continents= np.random.randint(4, size=len(train_hour1)) #dummy code. Please comment out prior to deployment
-    print("finish clustering")
+    # train_continents = np.array([0] * 8)
+    # print("before clustering")
+    # print(get_cluster_info(training_data[:, 4:6]))
+    # train_continents = get_cluster_info(training_data[:, 4:6])
+    # # train_continents= np.random.randint(4, size=len(train_hour1)) #dummy code. Please comment out prior to deployment
+    # print("finish clustering")
 
     ###Predict the cluster labels of test data
 
-    test_continents = continent_classification(train_hour1, train_hour2, train_hour3,
-                                               train_continents,
-                                               test_hour1, test_hour2, test_hour3)
+    # test_continents = continent_classification(train_hour1, train_hour2, train_hour3,
+    #                                            train_continents,
+    #                                            test_hour1, test_hour2, test_hour3)
 
-    print("finish test data classification")
+    # print("finish test data classification")
     # test_continents= np.random.randint(4, size=len(test_hour1))    #dummy code. use the line above for deployment
 
     # ###One Hot Encoding of Categories
@@ -349,12 +349,12 @@ if __name__ == "__main__":
     #     train_continents_OHC =enc.transform([train_continents]).toarray()
     #     print(train_continents_OHC.shape)
 
-    print("test_continents")
-    print(test_continents)
-    print("train_continents")
-    print(train_continents)
-    test_continents_OHC = to_categorical(test_continents)
-    train_continents_OHC = to_categorical(train_continents)
+    # print("test_continents")
+    # print(test_continents)
+    # print("train_continents")
+    # print(train_continents)
+    # test_continents_OHC = to_categorical(test_continents)
+    # train_continents_OHC = to_categorical(train_continents)
 
     print("start predicting lat")
     ###predicting latitude
@@ -377,9 +377,9 @@ if __name__ == "__main__":
         clf_boost_multi = Ridge(alpha=0.5)
 
         Xtrain = np.concatenate((posting_pattern_lifting(training_data[:, 1], training_data[:, 2], training_data[:, 3]),
-                                 np.array([training_data[:, 6]]).T, train_continents_OHC), axis=1)
+                                 np.array([training_data[:, 6]]).T), axis=1)
         Xtest = np.concatenate((posting_pattern_lifting([test_point[1]], [test_point[2]], [test_point[3]]).flatten(),
-                                [test_point[4]], test_continents_OHC[pred_index]))
+                                [test_point[4]]))
         ytrain = training_data[:, 4]
         clf_boost_multi.fit(Xtrain, ytrain, weight)
         #        import pdb; pdb.set_trace()
@@ -407,9 +407,9 @@ if __name__ == "__main__":
         clf_boost_multi = Ridge(alpha=0.5)
 
         Xtrain = np.concatenate((posting_pattern_lifting(training_data[:, 1], training_data[:, 2], training_data[:, 3]),
-                                 np.array([training_data[:, 6]]).T, train_continents_OHC,np.array([training_data[:, 4]]).T), axis=1)
+                                 np.array([training_data[:, 6]]).T,np.array([training_data[:, 4]]).T), axis=1)
         Xtest = np.concatenate((posting_pattern_lifting([test_point[1]], [test_point[2]], [test_point[3]]).flatten(),
-                                [test_point[4]], test_continents_OHC[pred_index],[lat_pred[pred_index]]))
+                                [test_point[4]], [lat_pred[pred_index]]))
         ytrain = training_data[:, 5]
         clf_boost_multi.fit(Xtrain, ytrain, weight)
         #        import pdb; pdb.set_trace()
@@ -420,7 +420,7 @@ if __name__ == "__main__":
     print("lat pred", lat_pred)
     print("lon pred", lon_pred)
     pred=np.concatenate((np.array([lat_pred]).T,np.array([lon_pred]).T),axis=1)
-    np.savetxt("answer_Sequential.csv", pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
+    np.savetxt("answer_Sequential_nof.csv", pred, fmt=['%1.3f', '%1.3f'], delimiter=",")
 
     # print("cluster_center",cluster_center)
     # max=np.array([0]*labels.max())
