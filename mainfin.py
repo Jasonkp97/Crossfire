@@ -374,21 +374,21 @@ if __name__ == "__main__":
 
     DTC_grid={'criterion':['gini','entropy']}
 
-    RFC_grid={'n_estimators':[100,200,300,400,500],'criterion':['gini','entropy'],'n_jobs':[1,-1]}
+    RFC_grid={'n_estimators':[0,20,50,100],'max_depth':[5,10,15,20],'min_samples_split':[2,3,4], 'max_features':[0.3,0.5,0.7],'n_jobs':[-1]}
 
-    ABC_grid={'base_estimator':[knn,dtc,rfc,abc,gbc],'n_estimators':[50,100,150,200,250,300]}
+    #ABC_grid={'base_estimator':[knn,dtc,rfc],'n_estimators':[50,100,150,200,250,300]}
 
-    GBC_grid={'loss':['deviance','exponential'],'n_estimators':[50,100,150,200,250,300]}
+    GBC_grid={'loss':['deviance','exponential'],'max_depth':[2,3,4],'n_estimators':[50,100,150,200,250,300]}
 
     clf_KNN=GridSearchCV(estimator=knn,param_grid=KNN_grid)
     clf_DTC=GridSearchCV(estimator=dtc,param_grid=DTC_grid)
     clf_RFC=GridSearchCV(estimator=rfc,param_grid=RFC_grid)
-    clf_ABC=GridSearchCV(estimator=abc,param_grid=ABC_grid)
+    #clf_ABC=GridSearchCV(estimator=abc,param_grid=ABC_grid)
     clf_GBC=GridSearchCV(estimator=gbc,param_grid=GBC_grid)
     print("start searching...")
 
     raw=posting_pattern_lifting(training_data[:,1],training_data[:,2],training_data[:,3])
-    GridSearch=np.concatenate(raw,training_data[:,6])
+    GridSearch=np.concatenate((raw,np.array([training_data[:,6]]).T),axis=1)
     for i in range(1):
         x=random.randint(0,20000)
         y=random.randint(x+5000,44000)
@@ -412,13 +412,13 @@ if __name__ == "__main__":
         print("Score:", clf_RFC.best_score_)
         print("\n")
 
-    for i in range(1):
-        x = random.randint(0, 20000)
-        y = random.randint(x+5000, 44000)
-        clf_ABC.fit(GridSearch[x:(x + 5000), :], train_continents[x:(x + 5000)])
-        print("ABC best:", clf_ABC.best_estimator_)
-        print("Score:", clf_ABC.best_score_)
-        print("\n")
+    # for i in range(1):
+    #     x = random.randint(0, 20000)
+    #     y = random.randint(x+5000, 44000)
+    #     clf_ABC.fit(GridSearch[x:(x + 5000), :], train_continents[x:(x + 5000)])
+    #     print("ABC best:", clf_ABC.best_estimator_)
+    #     print("Score:", clf_ABC.best_score_)
+    #     print("\n")
 
     for i in range(1):
         x = random.randint(0, 20000)
@@ -428,6 +428,7 @@ if __name__ == "__main__":
         print("Score:", clf_GBC.best_score_)
         print("\n")
 
+    exit(233)
 ### End of GridSearch
 
     for test_point in test_data:

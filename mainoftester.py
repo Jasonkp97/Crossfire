@@ -336,7 +336,6 @@ if __name__ == "__main__":
     ### Clustering
     train_continents = np.array([0] * 8)
     print("before clustering")
-
     train_continents = get_cluster_info(training_data[:, 4:6])
     # train_continents= np.random.randint(4, size=len(train_hour1)) #dummy code. Please comment out prior to deployment
     print("finish clustering")
